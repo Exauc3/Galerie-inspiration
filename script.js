@@ -1,37 +1,29 @@
-// Données fictives simulant les images de la base de données
-const inspirationData = [
-    { id: 1, src: 'https://picsum.photos/400/600?random=1', title: 'Design Minimaliste', tags: ['design', 'minimaliste', 'intérieur'] },
-    { id: 2, src: 'https://picsum.photos/400/300?random=2', title: 'Photographie Urbaine', tags: ['photo', 'ville', 'nuit'] },
-    { id: 3, src: 'https://picsum.photos/400/750?random=3', title: 'Concept Art Nature', tags: ['art', 'dessin', 'nature', 'paysage'] },
-    { id: 4, src: 'https://picsum.photos/400/500?random=4', title: 'Développement Web', tags: ['code', 'webdev', 'ui', 'interface'] },
-    { id: 5, src: 'https://picsum.photos/400/400?random=5', title: 'Cuisine Végétale', tags: ['cuisine', 'food', 'vegan', 'recette'] },
-    { id: 6, src: 'https://picsum.photos/400/550?random=6', title: 'Architecture Moderne', tags: ['architecture', 'design', 'maison'] },
-    { id: 7, src: 'https://picsum.photos/400/450?random=7', title: 'Voyage en Montagne', tags: ['voyage', 'aventure', 'froid'] },
-    { id: 8, src: 'https://picsum.photos/400/800?random=8', title: 'Typographie Créative', tags: ['design', 'typographie', 'graphisme'] },
-    { id: 9, src: 'https://picsum.photos/400/350?random=9', title: 'Dessin Abstrait', tags: ['art', 'abstrait', 'couleur'] },
-    { id: 10, src: 'https://picsum.photos/400/700?random=10', title: 'Fashion Streetwear', tags: ['mode', 'streetwear', 'vêtement'] },
-    // Ajoutez plus d'éléments pour simuler une grande galerie
-];
+const UNSPLASH_ACCESS_KEY = API_KEYS.UNSPLASH_ACCESS_KEY; 
+
+const UNSPLASH_API_URL = 'https://api.unsplash.com/photos/random';
+const PHOTO_COUNT = 30; // Nombre d'images à charger initialement
 
 const galleryContainer = document.getElementById('galleryContainer');
 const searchInput = document.getElementById('searchInput');
+const searchButton = document.getElementById('searchButton');
+
+
+// --- FONCTIONS D'AFFICHAGE ---
 
 /**
- * Crée l'élément HTML pour une image de la galerie
- * @param {object} item - L'objet de données de l'image
+ * Crée l'élément HTML pour une image de la galerie à partir des données Unsplash
+ * @param {object} item - Les données de la photo reçues de l'API Unsplash
  * @returns {HTMLElement}
  */
 function createGalleryItem(item) {
     const itemDiv = document.createElement('div');
     itemDiv.className = 'gallery-item';
 
-    // Image
     const img = document.createElement('img');
-    img.src = item.src;
-    img.alt = item.title;
-    img.loading = 'lazy'; // Pour le chargement paresseux (performance pro)
+    img.src = item.urls.regular; 
+    img.alt = item.alt_description || 'Image Unsplash'; 
+    img.loading = 'lazy'; // Optimisation pour la performance
 
-    // Overlay (Titre, Bouton Enregistrer/Sauvegarder)
     const overlayDiv = document.createElement('div');
     overlayDiv.className = 'overlay';
 
@@ -40,30 +32,29 @@ function createGalleryItem(item) {
     overlayTop.className = 'overlay-top';
     const saveButton = document.createElement('button');
     saveButton.textContent = 'Enregistrer';
-    // Ajout d'un écouteur d'événement simple (à développer pour la vraie fonction de sauvegarde)
-    saveButton.onclick = () => alert(`Enregistré : ${item.title}`);
+    saveButton.onclick = () => alert(`Enregistré : ${item.alt_description || item.id}`);
     overlayTop.appendChild(saveButton);
 
-    // Bottom: Titre + Bouton Partager
+    // Bottom: Auteur + Bouton Partager
     const overlayBottom = document.createElement('div');
     overlayBottom.className = 'overlay-bottom';
     
-    const titleSpan = document.createElement('span');
-    titleSpan.textContent = item.title;
-    titleSpan.style.fontWeight = 'bold'; // Mettre le titre en gras
+    const authorLink = document.createElement('a');
+    authorLink.textContent = `@${item.user.username}`;
+    authorLink.href = item.user.links.html;
+    authorLink.target = '_blank';
+    authorLink.title = `Voir le profil de ${item.user.username} sur Unsplash`;
     
     const shareIcon = document.createElement('i');
     shareIcon.className = 'fas fa-share-alt';
-    shareIcon.onclick = () => alert(`Partager : ${item.title}`);
+    shareIcon.onclick = () => window.open(item.links.html, '_blank');
 
-    overlayBottom.appendChild(titleSpan);
+    overlayBottom.appendChild(authorLink);
     overlayBottom.appendChild(shareIcon);
 
-    // Assemblage de l'overlay
+    // Assemblage
     overlayDiv.appendChild(overlayTop);
     overlayDiv.appendChild(overlayBottom);
-
-    // Assemblage final de l'item
     itemDiv.appendChild(img);
     itemDiv.appendChild(overlayDiv);
 
@@ -71,48 +62,79 @@ function createGalleryItem(item) {
 }
 
 /**
- * Affiche la galerie avec les données filtrées
- * @param {array} data - Le tableau d'images à afficher
+ * Affiche la galerie
+ * @param {array} data - Le tableau d'images Unsplash à afficher
  */
 function renderGallery(data) {
-    galleryContainer.innerHTML = ''; // Vide le conteneur existant
+    galleryContainer.innerHTML = ''; // Vide le conteneur avant de recharger
     data.forEach(item => {
         galleryContainer.appendChild(createGalleryItem(item));
     });
 }
 
+// --- LOGIQUE DE L'API ---
+
 /**
- * Gère la recherche et le filtrage des images
+ * Charge les images aléatoires ou via recherche depuis Unsplash
+ * @param {string} query - Terme de recherche optionnel
  */
-function handleSearch() {
-    const query = searchInput.value.toLowerCase().trim();
+async function fetchUnsplashImages(query = '') {
     
-    if (query === '') {
-        renderGallery(inspirationData); // Afficher tout si la recherche est vide
-        return;
+    // Affiche un état de chargement
+    galleryContainer.innerHTML = '<p class="no-results">Chargement des inspirations...</p>';
+
+    // Détermine l'endpoint (recherche ou aléatoire)
+    const endpoint = query 
+        ? `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=${PHOTO_COUNT}`
+        : `${UNSPLASH_API_URL}?count=${PHOTO_COUNT}`;
+
+    try {
+        const response = await fetch(endpoint, {
+            headers: {
+                Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}. Vérifiez votre Clé API Unsplash.`);
+        }
+
+        const data = await response.json();
+        
+        // L'endpoint de recherche renvoie un objet avec une propriété 'results'
+        const imagesToRender = query ? data.results : data; 
+
+        if (imagesToRender.length === 0) {
+            galleryContainer.innerHTML = `<p class="no-results">Aucun résultat trouvé pour "${query}".</p>`;
+            return;
+        }
+
+        renderGallery(imagesToRender);
+
+    } catch (error) {
+        console.error('Erreur lors du chargement des images Unsplash:', error);
+        galleryContainer.innerHTML = `<p class="error-message">Impossible de charger les images. ${error.message}</p>`;
     }
-
-    const filteredData = inspirationData.filter(item => {
-        // Recherche dans le titre
-        if (item.title.toLowerCase().includes(query)) {
-            return true;
-        }
-        // Recherche dans les tags
-        if (item.tags.some(tag => tag.toLowerCase().includes(query))) {
-            return true;
-        }
-        return false;
-    });
-
-    renderGallery(filteredData);
 }
 
-// Événement de recherche
+// --- LOGIQUE DE RECHERCHE ET INITIALISATION ---
+
+/**
+ * Gère la recherche et le filtrage (via Entrée ou Clic)
+ */
+function handleSearch(event) {
+    // Déclenche la recherche si 'Entrée' est pressé ou si c'est un événement de 'click'
+    if (event.key === 'Enter' || event.type === 'click') {
+        const query = searchInput.value.toLowerCase().trim();
+        fetchUnsplashImages(query);
+    }
+}
+
+// Événements de recherche
 searchInput.addEventListener('keyup', handleSearch);
+searchButton.addEventListener('click', handleSearch);
 
 // Chargement initial de la galerie au démarrage
 document.addEventListener('DOMContentLoaded', () => {
-    // Mélanger les données pour simuler un flux dynamique (comme Instagram/Pinterest)
-    const shuffledData = inspirationData.sort(() => 0.5 - Math.random());
-    renderGallery(shuffledData);
+    fetchUnsplashImages(); // Charge les images aléatoires au début
 });
