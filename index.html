@@ -9,25 +9,36 @@
 </head>
 <body>
 
-    <header>
+    <header class="header">
         <div class="logo">
             <i class="fas fa-camera-retro"></i>
             <h1>InspiGram</h1>
         </div>
+
         <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Rechercher des inspirations, tags..." aria-label="Recherche">
-            <button id="searchButton" title="Rechercher"><i class="fas fa-search"></i></button>
+            <input type="text" id="search-input" placeholder="Rechercher des inspirations, tags...">
+            <button id="search-button" title="Rechercher"><i class="fas fa-search"></i></button>
         </div>
+        
         <nav>
             <i class="fas fa-user-circle" title="Profil"></i>
         </nav>
     </header>
 
-    <main class="gallery-container" id="galleryContainer">
-        </main>
+    <main class="main-content">
+        <section class="favorites-section">
+            <h2 class="section-title">❤️ Mes Favoris</h2>
+            <div id="favorites-gallery" class="gallery-container favorites-grid"></div>
+        </section>
+
+        <section class="results-section">
+            <h2 class="section-title">Inspirations du Moment</h2>
+            <div id="gallery" class="gallery-container"></div>
+        </section>
+    </main>
 
     <footer>
-        <p>&copy; 2024 InspiGram. Propulsé par Unsplash.</p>
+        <p>&copy; 2024 InspiGram. Créé par Exaucé ✨ | Powered by Unsplash API</p>
     </footer>
 
     <script src="config.js"></script> 
