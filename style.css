@@ -18,7 +18,7 @@ body {
     color: var(--text-color);
 }
 
-/* --- En-tête (Header) --- */
+/* --- En-tête (Header) de style App --- */
 header {
     display: flex;
     justify-content: space-between;
@@ -37,16 +37,13 @@ header {
     font-size: 1.5em;
     font-weight: bold;
     color: var(--primary-color);
-    text-decoration: none;
 }
-.logo i {
-    margin-right: 10px;
-}
+.logo i { margin-right: 10px; }
 
 /* --- Barre de Recherche --- */
 .search-bar {
     display: flex;
-    flex-grow: 1; 
+    flex-grow: 1;
     max-width: 600px;
     margin: 0 20px;
 }
@@ -65,6 +62,7 @@ header {
     padding: 10px 15px;
     border-radius: 0 20px 20px 0;
     cursor: pointer;
+    font-weight: bold;
     transition: background-color 0.2s;
 }
 .search-bar button:hover {
@@ -77,15 +75,33 @@ nav i {
     cursor: pointer;
 }
 
+/* --- Titres et Sections --- */
+.main-content {
+    padding: 20px 0;
+}
+.section-title {
+    text-align: center;
+    margin: 30px 0 20px;
+    color: #333;
+}
+
 /* --- Mise en Page Maçonnerie (Masonry Layout) --- */
 
 .gallery-container {
-    padding: 20px;
     /* La clé de l'effet maçonnerie purement CSS */
     column-count: 5; /* 5 colonnes sur grand écran */
     column-gap: 15px;
+    padding: 0 20px;
+}
+/* Style spécifique pour la section Favoris si vous voulez une grille classique */
+.favorites-grid {
+    column-count: 6; 
+    max-width: 1200px;
+    margin: 0 auto 50px;
 }
 
+
+/* Item de la galerie */
 .gallery-item {
     margin-bottom: 15px;
     break-inside: avoid; /* Empêche l'image d'être coupée entre les colonnes */
@@ -98,16 +114,12 @@ nav i {
 
 .gallery-item img {
     width: 100%;
-    height: auto;
+    height: auto; /* IMPORTANT: Pour la maçonnerie, utilisez 'height: auto' */
     display: block;
     transition: opacity 0.3s;
 }
 
-/* --- Effet au Survol (Hover) --- */
-
-.gallery-item:hover img {
-    opacity: 0.8;
-}
+/* --- Overlay et Interactions (Style Instagram/Pinterest) --- */
 
 .overlay {
     position: absolute;
@@ -117,7 +129,7 @@ nav i {
     height: 100%;
     background: rgba(0, 0, 0, 0.3);
     color: white;
-    opacity: 0; 
+    opacity: 0; /* Caché par défaut */
     transition: opacity 0.3s;
     display: flex;
     flex-direction: column;
@@ -126,70 +138,60 @@ nav i {
 }
 
 .gallery-item:hover .overlay {
-    opacity: 1; 
+    opacity: 1; /* Apparaît au survol */
 }
 
 .overlay-top {
     display: flex;
     justify-content: flex-end;
 }
-
-.overlay-top button {
+.overlay-top .save-btn {
     background-color: var(--primary-color);
     color: white;
     border: none;
-    padding: 10px 15px;
+    padding: 8px 15px;
     border-radius: 20px;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.2s;
 }
 
 .overlay-bottom {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end; /* Aligner les éléments en bas de l'overlay */
+    align-items: flex-end;
 }
-
-.overlay-bottom a {
+.overlay-bottom .author-link {
     color: white;
     font-size: 0.9em;
+    text-decoration: underline;
 }
-
-.overlay-bottom i {
+.overlay-bottom .action-icon {
     font-size: 1.5em;
     cursor: pointer;
-    transition: color 0.2s;
+    margin-left: 10px;
 }
-.overlay-bottom i:hover {
-    color: var(--primary-color);
-}
-
-.no-results, .error-message {
-    padding: 50px;
-    text-align: center;
-    color: #555;
-    font-size: 1.2em;
-    grid-column: 1 / -1; /* Permet au message de s'étendre sur toute la largeur */
-}
+.action-icon.favorite { color: white; }
+.action-icon.favorite.active { color: #f44336; } /* Coeur rempli rouge */
 
 
-/* --- Responsive Design --- */
+/* --- Responsive Design (Maçonnerie) --- */
 @media (max-width: 1400px) {
     .gallery-container { column-count: 4; }
+    .favorites-grid { column-count: 5; }
 }
 @media (max-width: 1000px) {
     .gallery-container { column-count: 3; }
-    .search-bar { max-width: 400px; }
-    header { padding: 10px 15px; }
+    .favorites-grid { column-count: 4; }
+    .search-bar { max-width: 400px; margin: 0 10px; }
 }
 @media (max-width: 700px) {
     .gallery-container { column-count: 2; }
-    .logo h1 { display: none; } 
-    .search-bar { margin: 0 10px; }
+    .favorites-grid { column-count: 3; }
+    .logo h1 { display: none; }
+    header { padding: 10px 15px; }
 }
 @media (max-width: 450px) {
-    .gallery-container { column-count: 1; }
+    .gallery-container, .favorites-grid { column-count: 1; padding: 0 10px; }
     header { flex-wrap: wrap; justify-content: center; }
     .search-bar { width: 100%; margin: 10px 0; }
 }
