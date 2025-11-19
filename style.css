@@ -26,7 +26,7 @@ header {
     padding: 15px 30px;
     background-color: white;
     box-shadow: var(--shadow-light);
-    position: sticky; /* Reste en haut lors du défilement */
+    position: sticky; 
     top: 0;
     z-index: 100;
 }
@@ -37,6 +37,7 @@ header {
     font-size: 1.5em;
     font-weight: bold;
     color: var(--primary-color);
+    text-decoration: none;
 }
 .logo i {
     margin-right: 10px;
@@ -45,7 +46,7 @@ header {
 /* --- Barre de Recherche --- */
 .search-bar {
     display: flex;
-    flex-grow: 1; /* Prend l'espace central */
+    flex-grow: 1; 
     max-width: 600px;
     margin: 0 20px;
 }
@@ -85,7 +86,6 @@ nav i {
     column-gap: 15px;
 }
 
-/* Item de la galerie */
 .gallery-item {
     margin-bottom: 15px;
     break-inside: avoid; /* Empêche l'image d'être coupée entre les colonnes */
@@ -106,7 +106,7 @@ nav i {
 /* --- Effet au Survol (Hover) --- */
 
 .gallery-item:hover img {
-    opacity: 0.8; /* Assombrit légèrement l'image */
+    opacity: 0.8;
 }
 
 .overlay {
@@ -117,7 +117,7 @@ nav i {
     height: 100%;
     background: rgba(0, 0, 0, 0.3);
     color: white;
-    opacity: 0; /* Caché par défaut */
+    opacity: 0; 
     transition: opacity 0.3s;
     display: flex;
     flex-direction: column;
@@ -126,7 +126,7 @@ nav i {
 }
 
 .gallery-item:hover .overlay {
-    opacity: 1; /* Apparaît au survol */
+    opacity: 1; 
 }
 
 .overlay-top {
@@ -148,6 +148,12 @@ nav i {
 .overlay-bottom {
     display: flex;
     justify-content: space-between;
+    align-items: flex-end; /* Aligner les éléments en bas de l'overlay */
+}
+
+.overlay-bottom a {
+    color: white;
+    font-size: 0.9em;
 }
 
 .overlay-bottom i {
@@ -159,8 +165,16 @@ nav i {
     color: var(--primary-color);
 }
 
+.no-results, .error-message {
+    padding: 50px;
+    text-align: center;
+    color: #555;
+    font-size: 1.2em;
+    grid-column: 1 / -1; /* Permet au message de s'étendre sur toute la largeur */
+}
 
-/* --- Responsive Design (Adaptation à l'écran) --- */
+
+/* --- Responsive Design --- */
 @media (max-width: 1400px) {
     .gallery-container { column-count: 4; }
 }
@@ -171,11 +185,11 @@ nav i {
 }
 @media (max-width: 700px) {
     .gallery-container { column-count: 2; }
-    .logo h1 { display: none; } /* Cacher le texte du logo sur mobile */
+    .logo h1 { display: none; } 
     .search-bar { margin: 0 10px; }
 }
 @media (max-width: 450px) {
-    .gallery-container { column-count: 1; } /* 1 colonne sur les très petits écrans */
+    .gallery-container { column-count: 1; }
     header { flex-wrap: wrap; justify-content: center; }
     .search-bar { width: 100%; margin: 10px 0; }
 }
@@ -187,4 +201,5 @@ footer {
     background-color: white;
     color: #888;
     margin-top: 30px;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.02);
 }
