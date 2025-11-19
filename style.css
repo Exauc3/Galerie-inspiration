@@ -230,6 +230,33 @@ nav i {
     .gallery-container { column-count: 4; }
     .favorites-grid { column-count: 5; }
 }
+/* --- OPTIMISATION SPÉCIFIQUE POUR LA VUE MOBILE (OVERLAYS) --- */
+@media (max-width: 450px) {
+    
+    /* Réduction du bouton 'Enregistrer' */
+    .gallery-item .overlay-top .save-btn {
+        padding: 5px 10px; /* Réduire le padding */
+        font-size: 0.75em; /* Rendre le texte plus petit */
+        border-radius: 15px; /* Rendre le bouton plus rond */
+    }
+
+    /* Réduction de l'icône de partage */
+    .gallery-item .overlay-bottom .action-icon {
+        font-size: 1.1em; /* Rendre l'icône plus petite */
+        margin-left: 8px;
+    }
+    
+    /* Réduction du nom d'auteur */
+    .gallery-item .overlay-bottom .author-link {
+        font-size: 0.75em; /* Rendre le texte de l'auteur plus petit */
+    }
+
+    /* Ajustement de l'espacement interne de l'overlay */
+    .gallery-item .overlay {
+        padding: 8px; 
+    }
+}
+
 
 
 /* --- Footer --- */
