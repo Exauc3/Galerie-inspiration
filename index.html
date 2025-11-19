@@ -7,21 +7,24 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <header>
-        <h1>Galerie d'Inspiration Créative</h1>
-        <input type="text" id="search-input" placeholder="Rechercher une image...">
-        <button id="search-button">Rechercher</button>
+        <h1>🎨 Galerie d'Inspiration Créative</h1>
+
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Rechercher des images (ex: design, nature, UI)...">
+            <button id="search-button">Rechercher</button>
+        </div>
     </header>
 
-    <main id="gallery">
-        <!-- Les images s’afficheront ici -->
+    <main>
+        <h2 class="section-title">Résultats</h2>
+        <div id="gallery" class="grid"></div>
     </main>
 
-    <section id="favorites">
-        <h2>Mes Favoris</h2>
-        <div id="favorites-gallery">
-            <!-- Les images favorites seront ici -->
-        </div>
+    <section class="favorites-section">
+        <h2 class="section-title">❤️ Mes Favoris</h2>
+        <div id="favorites-gallery" class="grid"></div>
     </section>
 
     <script src="config.js"></script>
