@@ -1,31 +1,89 @@
+/* -------- STYLE GLOBAL -------- */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     margin: 0;
-    padding: 0;
-    background-color: #f9f9f9;
+    background: #f2f3f7;
+    color: #333;
 }
 
+/* -------- HEADER -------- */
 header {
-    background-color: #ff7f50;
-    padding: 20px;
+    background: linear-gradient(135deg, #ff7f50, #ff6b81);
+    padding: 40px 20px;
     text-align: center;
     color: white;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
 }
 
-input, button {
-    padding: 10px;
-    margin: 5px;
-    font-size: 16px;
+header h1 {
+    font-size: 28px;
+    margin-bottom: 15px;
 }
 
-#gallery, #favorites-gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+/* -------- BARRE DE RECHERCHE -------- */
+.search-bar {
+    display: flex;
+    justify-content: center;
     gap: 10px;
-    padding: 20px;
 }
 
-img {
+.search-bar input {
+    width: 60%;
+    max-width: 400px;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    outline: none;
+}
+
+.search-bar button {
+    padding: 14px 18px;
+    background: white;
+    color: #ff6b81;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.search-bar button:hover {
+    background: #ffe3e8;
+}
+
+/* -------- TITRES -------- */
+.section-title {
+    margin: 30px 20px 10px;
+    font-size: 22px;
+    color: #444;
+}
+
+/* -------- GRILLE D'IMAGES -------- */
+.grid {
+    padding: 20px;
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+/* -------- CARTES D'IMAGES -------- */
+.grid img {
     width: 100%;
-    border-radius: 8px;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.grid img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+}
+
+/* -------- FAVORIS -------- */
+.favorites-section {
+    background: white;
+    padding-bottom: 40px;
 }
