@@ -1,4 +1,15 @@
-const UNSPLASH_ACCESS_KEY = API_KEYS.UNSPLASH_ACCESS_KEY; 
+// ======================================================================
+// Fichier : script.js
+// Logique : Chargement dynamique des images Unsplash et gestion de la recherche
+// Dépendance : Nécessite que config.js soit chargé AVANT dans index.html
+// ======================================================================
+
+// --- 1. INITIALISATION ET VÉRIFICATION DE LA CLÉ API ---
+
+// Vérifie si la variable API_KEYS (définie dans config.js) existe et si elle contient la clé.
+const UNSPLASH_ACCESS_KEY = (typeof API_KEYS !== 'undefined' && API_KEYS.UNSPLASH_ACCESS_KEY) 
+    ? API_KEYS.UNSPLASH_ACCESS_KEY 
+    : null; // Si non trouvée, met la clé à null
 
 const UNSPLASH_API_URL = 'https://api.unsplash.com/photos/random';
 const PHOTO_COUNT = 30; // Nombre d'images à charger initialement
@@ -7,8 +18,21 @@ const galleryContainer = document.getElementById('galleryContainer');
 const searchInput = document.getElementById('searchInput');
 const searchButton = document.getElementById('searchButton');
 
+if (!UNSPLASH_ACCESS_KEY) {
+    console.error("ERREUR CRITIQUE: Clé Unsplash non trouvée. Vérifiez config.js.");
+    // Affiche un message d'erreur clair à l'utilisateur
+    document.addEventListener('DOMContentLoaded', () => {
+        galleryContainer.innerHTML = 
+            '<p class="error-message">⚠️ Erreur de configuration : La Clé API Unsplash est manquante ou incorrecte dans le fichier config.js. Veuillez vérifier.</p>';
+        // Désactive la recherche si la clé manque
+        searchInput.disabled = true;
+        searchButton.disabled = true;
+    });
+    // Arrête l'exécution du script principal
+    throw new Error("Clé API Unsplash manquante."); 
+}
 
-// --- FONCTIONS D'AFFICHAGE ---
+// --- 2. FONCTIONS D'AFFICHAGE ---
 
 /**
  * Crée l'élément HTML pour une image de la galerie à partir des données Unsplash
@@ -72,7 +96,7 @@ function renderGallery(data) {
     });
 }
 
-// --- LOGIQUE DE L'API ---
+// --- 3. LOGIQUE DE L'API ---
 
 /**
  * Charge les images aléatoires ou via recherche depuis Unsplash
@@ -80,8 +104,8 @@ function renderGallery(data) {
  */
 async function fetchUnsplashImages(query = '') {
     
-    // Affiche un état de chargement
-    galleryContainer.innerHTML = '<p class="no-results">Chargement des inspirations...</p>';
+    // Affiche un état de chargement pendant l'appel API
+    galleryContainer.innerHTML = '<p class="no-results"><i class="fas fa-spinner fa-spin"></i> Chargement des inspirations...</p>';
 
     // Détermine l'endpoint (recherche ou aléatoire)
     const endpoint = query 
@@ -96,7 +120,12 @@ async function fetchUnsplashImages(query = '') {
         });
 
         if (!response.ok) {
-            throw new Error(`Erreur HTTP: ${response.status}. Vérifiez votre Clé API Unsplash.`);
+            // Gère les erreurs API (ex: 403 Forbidden, 429 Rate Limit)
+            let errorMessage = `Erreur HTTP: ${response.status}.`;
+            if (response.status === 403 || response.status === 429) {
+                errorMessage += " Limite de l'API atteinte ou clé invalide.";
+            }
+            throw new Error(errorMessage);
         }
 
         const data = await response.json();
@@ -105,7 +134,7 @@ async function fetchUnsplashImages(query = '') {
         const imagesToRender = query ? data.results : data; 
 
         if (imagesToRender.length === 0) {
-            galleryContainer.innerHTML = `<p class="no-results">Aucun résultat trouvé pour "${query}".</p>`;
+            galleryContainer.innerHTML = `<p class="no-results">Aucun résultat trouvé pour "${query}". 🧐</p>`;
             return;
         }
 
@@ -113,11 +142,11 @@ async function fetchUnsplashImages(query = '') {
 
     } catch (error) {
         console.error('Erreur lors du chargement des images Unsplash:', error);
-        galleryContainer.innerHTML = `<p class="error-message">Impossible de charger les images. ${error.message}</p>`;
+        galleryContainer.innerHTML = `<p class="error-message">Impossible de charger les images. ❌ ${error.message}</p>`;
     }
 }
 
-// --- LOGIQUE DE RECHERCHE ET INITIALISATION ---
+// --- 4. LOGIQUE DE RECHERCHE ET INITIALISATION ---
 
 /**
  * Gère la recherche et le filtrage (via Entrée ou Clic)
@@ -138,3 +167,4 @@ searchButton.addEventListener('click', handleSearch);
 document.addEventListener('DOMContentLoaded', () => {
     fetchUnsplashImages(); // Charge les images aléatoires au début
 });
+
