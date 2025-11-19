@@ -190,11 +190,47 @@ nav i {
     .logo h1 { display: none; }
     header { padding: 10px 15px; }
 }
+/* --- Responsive Design (Maçonnerie Optimisée) --- */
+
+/* Téléphone (Petits Écrans: 450px et moins) */
 @media (max-width: 450px) {
-    .gallery-container, .favorites-grid { column-count: 1; padding: 0 10px; }
-    header { flex-wrap: wrap; justify-content: center; }
-    .search-bar { width: 100%; margin: 10px 0; }
+    /* Affichage sur deux colonnes sur mobile pour optimiser l'espace */
+    .gallery-container, .favorites-grid { 
+        column-count: 2; /* 👈 MODIFICATION CLÉ : Deux colonnes sur téléphone */
+        column-gap: 8px; /* Réduire l'espacement */
+        padding: 0 8px; 
+    }
+    
+    header { 
+        flex-wrap: wrap; 
+        justify-content: center; 
+        padding: 10px 15px;
+    }
+    .logo h1 { display: none; }
+    .search-bar { 
+        width: 100%; 
+        margin: 10px 0 0; 
+    }
 }
+
+/* Tablette (Moyens Écrans: 700px et moins) */
+@media (max-width: 700px) {
+    .gallery-container { column-count: 2; }
+    .favorites-grid { column-count: 3; }
+    .logo h1 { display: none; }
+    .search-bar { margin: 0 10px; }
+}
+
+/* Écrans plus larges (1000px, 1400px, etc.) restent inchangés */
+@media (max-width: 1000px) {
+    .gallery-container { column-count: 3; }
+    .favorites-grid { column-count: 4; }
+}
+@media (max-width: 1400px) {
+    .gallery-container { column-count: 4; }
+    .favorites-grid { column-count: 5; }
+}
+
 
 /* --- Footer --- */
 footer {
