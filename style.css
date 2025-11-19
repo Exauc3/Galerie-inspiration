@@ -1,120 +1,190 @@
-/* -------- STYLE GLOBAL -------- */
-body {
-    font-family: 'Poppins', sans-serif;
+/* --- Styles de Base & Reset --- */
+:root {
+    --primary-color: #e60023; /* Rouge Pinterest */
+    --text-color: #111;
+    --bg-color: #f7f7f7;
+    --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+* {
+    box-sizing: border-box;
     margin: 0;
-    background: #f2f3f7;
-    color: #333;
+    padding: 0;
 }
 
-/* -------- HEADER -------- */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+/* --- En-tête (Header) --- */
 header {
-    background: linear-gradient(135deg, #ff7f50, #ff6b81);
-    padding: 40px 20px;
-    text-align: center;
-    color: white;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background-color: white;
+    box-shadow: var(--shadow-light);
+    position: sticky; /* Reste en haut lors du défilement */
+    top: 0;
+    z-index: 100;
 }
 
-header h1 {
-    font-size: 28px;
-    margin-bottom: 15px;
+.logo {
+    display: flex;
+    align-items: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+.logo i {
+    margin-right: 10px;
 }
 
-/* -------- BARRE DE RECHERCHE -------- */
+/* --- Barre de Recherche --- */
 .search-bar {
     display: flex;
-    justify-content: center;
-    gap: 10px;
+    flex-grow: 1; /* Prend l'espace central */
+    max-width: 600px;
+    margin: 0 20px;
 }
-
 .search-bar input {
-    width: 60%;
-    max-width: 400px;
-    padding: 14px;
-    border: none;
-    border-radius: 12px;
-    font-size: 15px;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 20px 0 0 20px;
+    font-size: 1em;
+    width: 100%;
     outline: none;
 }
-
 .search-bar button {
-    padding: 14px 18px;
-    background: white;
-    color: #ff6b81;
-    font-weight: bold;
+    background-color: var(--primary-color);
+    color: white;
     border: none;
-    border-radius: 12px;
+    padding: 10px 15px;
+    border-radius: 0 20px 20px 0;
     cursor: pointer;
-    transition: 0.2s;
+    transition: background-color 0.2s;
 }
-
 .search-bar button:hover {
-    background: #ffe3e8;
+    background-color: #a80e1e;
 }
 
-/* -------- TITRES -------- */
-.section-title {
-    margin: 30px 20px 10px;
-    font-size: 22px;
-    color: #444;
-}
-
-/* -------- GRILLE D'IMAGES -------- */
-.grid {
-    padding: 20px;
-    display: grid;
-    gap: 20px;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-}
-
-/* -------- CARTES D'IMAGES -------- */
-.grid img {
-    width: 100%;
-    border-radius: 16px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    transition: transform 0.2s, box-shadow 0.2s;
+nav i {
+    font-size: 1.8em;
+    color: #555;
     cursor: pointer;
 }
 
-.grid img:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+/* --- Mise en Page Maçonnerie (Masonry Layout) --- */
+
+.gallery-container {
+    padding: 20px;
+    /* La clé de l'effet maçonnerie purement CSS */
+    column-count: 5; /* 5 colonnes sur grand écran */
+    column-gap: 15px;
 }
 
-/* -------- FAVORIS -------- */
-.favorites-section {
-    background: white;
-    padding-bottom: 40px;
+/* Item de la galerie */
+.gallery-item {
+    margin-bottom: 15px;
+    break-inside: avoid; /* Empêche l'image d'être coupée entre les colonnes */
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: var(--shadow-light);
+    cursor: zoom-in;
 }
-/* Ajout */
-header {
-  display:flex;
-  gap:10px;
-  align-items:center;
-  justify-content:center;
-  flex-wrap:wrap;
+
+.gallery-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: opacity 0.3s;
 }
-header h1 { margin:0; font-size:1.4rem; }
-.photo-card {
-  position:relative;
-  overflow:hidden;
-  border-radius:10px;
-  background:#fff;
-  box-shadow:0 6px 18px rgba(0,0,0,0.08);
+
+/* --- Effet au Survol (Hover) --- */
+
+.gallery-item:hover img {
+    opacity: 0.8; /* Assombrit légèrement l'image */
 }
-.photo-card img { display:block; width:100%; height:200px; object-fit:cover; transition: transform .3s ease; }
-.photo-card:hover img { transform: scale(1.05); }
-.fav-btn {
-  position:absolute;
-  top:8px;
-  right:8px;
-  background:rgba(255,255,255,0.85);
-  border:none;
-  padding:6px 8px;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:700;
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    opacity: 0; /* Caché par défaut */
+    transition: opacity 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 15px;
 }
-section#favorites { background:#fff; padding:10px 20px; margin-top:20px; }
-#favorites-gallery img { width:100px; height:70px; object-fit:cover; margin:6px; border-radius:6px; cursor:pointer; }
+
+.gallery-item:hover .overlay {
+    opacity: 1; /* Apparaît au survol */
+}
+
+.overlay-top {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.overlay-top button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.overlay-bottom {
+    display: flex;
+    justify-content: space-between;
+}
+
+.overlay-bottom i {
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.overlay-bottom i:hover {
+    color: var(--primary-color);
+}
+
+
+/* --- Responsive Design (Adaptation à l'écran) --- */
+@media (max-width: 1400px) {
+    .gallery-container { column-count: 4; }
+}
+@media (max-width: 1000px) {
+    .gallery-container { column-count: 3; }
+    .search-bar { max-width: 400px; }
+    header { padding: 10px 15px; }
+}
+@media (max-width: 700px) {
+    .gallery-container { column-count: 2; }
+    .logo h1 { display: none; } /* Cacher le texte du logo sur mobile */
+    .search-bar { margin: 0 10px; }
+}
+@media (max-width: 450px) {
+    .gallery-container { column-count: 1; } /* 1 colonne sur les très petits écrans */
+    header { flex-wrap: wrap; justify-content: center; }
+    .search-bar { width: 100%; margin: 10px 0; }
+}
+
+/* --- Footer --- */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: white;
+    color: #888;
+    margin-top: 30px;
+}
