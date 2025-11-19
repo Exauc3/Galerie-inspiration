@@ -1,133 +1,118 @@
-// script.js
-const searchInput = document.getElementById('search-input');
-const searchButton = document.getElementById('search-button');
-const gallery = document.getElementById('gallery');
-const favoritesGallery = document.getElementById('favorites-gallery');
+// Données fictives simulant les images de la base de données
+const inspirationData = [
+    { id: 1, src: 'https://picsum.photos/400/600?random=1', title: 'Design Minimaliste', tags: ['design', 'minimaliste', 'intérieur'] },
+    { id: 2, src: 'https://picsum.photos/400/300?random=2', title: 'Photographie Urbaine', tags: ['photo', 'ville', 'nuit'] },
+    { id: 3, src: 'https://picsum.photos/400/750?random=3', title: 'Concept Art Nature', tags: ['art', 'dessin', 'nature', 'paysage'] },
+    { id: 4, src: 'https://picsum.photos/400/500?random=4', title: 'Développement Web', tags: ['code', 'webdev', 'ui', 'interface'] },
+    { id: 5, src: 'https://picsum.photos/400/400?random=5', title: 'Cuisine Végétale', tags: ['cuisine', 'food', 'vegan', 'recette'] },
+    { id: 6, src: 'https://picsum.photos/400/550?random=6', title: 'Architecture Moderne', tags: ['architecture', 'design', 'maison'] },
+    { id: 7, src: 'https://picsum.photos/400/450?random=7', title: 'Voyage en Montagne', tags: ['voyage', 'aventure', 'froid'] },
+    { id: 8, src: 'https://picsum.photos/400/800?random=8', title: 'Typographie Créative', tags: ['design', 'typographie', 'graphisme'] },
+    { id: 9, src: 'https://picsum.photos/400/350?random=9', title: 'Dessin Abstrait', tags: ['art', 'abstrait', 'couleur'] },
+    { id: 10, src: 'https://picsum.photos/400/700?random=10', title: 'Fashion Streetwear', tags: ['mode', 'streetwear', 'vêtement'] },
+    // Ajoutez plus d'éléments pour simuler une grande galerie
+];
 
-let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-let currentPage = 1;
-let currentQuery = '';
-const PER_PAGE = 12;
-let loadingMore = false;
+const galleryContainer = document.getElementById('galleryContainer');
+const searchInput = document.getElementById('searchInput');
 
-displayFavorites();
+/**
+ * Crée l'élément HTML pour une image de la galerie
+ * @param {object} item - L'objet de données de l'image
+ * @returns {HTMLElement}
+ */
+function createGalleryItem(item) {
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'gallery-item';
 
-// Rechercher
-searchButton.addEventListener('click', () => {
-  currentQuery = searchInput.value.trim();
-  if (!currentQuery) return;
-  currentPage = 1;
-  gallery.innerHTML = '';
-  searchImages(currentQuery, currentPage);
-});
+    // Image
+    const img = document.createElement('img');
+    img.src = item.src;
+    img.alt = item.title;
+    img.loading = 'lazy'; // Pour le chargement paresseux (performance pro)
 
-// Recherche initiale si tu veux
-// searchImages('design', 1);
+    // Overlay (Titre, Bouton Enregistrer/Sauvegarder)
+    const overlayDiv = document.createElement('div');
+    overlayDiv.className = 'overlay';
 
-async function searchImages(query, page = 1) {
-  try {
-    loadingMore = true;
-    const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&page=${page}&per_page=${PER_PAGE}&client_id=${UNSPLASH_ACCESS_KEY}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('Erreur API Unsplash');
-    const data = await res.json();
-    displayImages(data.results);
-    loadingMore = false;
-  } catch (err) {
-    console.error(err);
-    loadingMore = false;
-  }
+    // Top: Bouton Enregistrer (Save)
+    const overlayTop = document.createElement('div');
+    overlayTop.className = 'overlay-top';
+    const saveButton = document.createElement('button');
+    saveButton.textContent = 'Enregistrer';
+    // Ajout d'un écouteur d'événement simple (à développer pour la vraie fonction de sauvegarde)
+    saveButton.onclick = () => alert(`Enregistré : ${item.title}`);
+    overlayTop.appendChild(saveButton);
+
+    // Bottom: Titre + Bouton Partager
+    const overlayBottom = document.createElement('div');
+    overlayBottom.className = 'overlay-bottom';
+    
+    const titleSpan = document.createElement('span');
+    titleSpan.textContent = item.title;
+    titleSpan.style.fontWeight = 'bold'; // Mettre le titre en gras
+    
+    const shareIcon = document.createElement('i');
+    shareIcon.className = 'fas fa-share-alt';
+    shareIcon.onclick = () => alert(`Partager : ${item.title}`);
+
+    overlayBottom.appendChild(titleSpan);
+    overlayBottom.appendChild(shareIcon);
+
+    // Assemblage de l'overlay
+    overlayDiv.appendChild(overlayTop);
+    overlayDiv.appendChild(overlayBottom);
+
+    // Assemblage final de l'item
+    itemDiv.appendChild(img);
+    itemDiv.appendChild(overlayDiv);
+
+    return itemDiv;
 }
 
-function displayImages(images) {
-  if (!images || images.length === 0) {
-    if (currentPage === 1) gallery.innerHTML = '<p style="padding:20px">Aucun résultat.</p>';
-    return;
-  }
+/**
+ * Affiche la galerie avec les données filtrées
+ * @param {array} data - Le tableau d'images à afficher
+ */
+function renderGallery(data) {
+    galleryContainer.innerHTML = ''; // Vide le conteneur existant
+    data.forEach(item => {
+        galleryContainer.appendChild(createGalleryItem(item));
+    });
+}
 
-  images.forEach(img => {
-    const card = document.createElement('div');
-    card.className = 'photo-card';
+/**
+ * Gère la recherche et le filtrage des images
+ */
+function handleSearch() {
+    const query = searchInput.value.toLowerCase().trim();
+    
+    if (query === '') {
+        renderGallery(inspirationData); // Afficher tout si la recherche est vide
+        return;
+    }
 
-    const image = document.createElement('img');
-    image.dataset.src = img.urls.small;
-    image.alt = img.alt_description || '';
-    image.loading = 'lazy'; // fallback lazy
-    image.className = 'thumb';
-
-    // clic = ouvrir lightbox ou ajouter aux favoris
-    const favBtn = document.createElement('button');
-    favBtn.textContent = favorites.find(f => f.id === img.id) ? '♥' : '♡';
-    favBtn.className = 'fav-btn';
-    favBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleFavorite(img, favBtn);
+    const filteredData = inspirationData.filter(item => {
+        // Recherche dans le titre
+        if (item.title.toLowerCase().includes(query)) {
+            return true;
+        }
+        // Recherche dans les tags
+        if (item.tags.some(tag => tag.toLowerCase().includes(query))) {
+            return true;
+        }
+        return false;
     });
 
-    // Option: click ouvre image en grand (nouvelle fenêtre ou lightbox)
-    image.addEventListener('click', () => {
-      window.open(img.links.html, '_blank');
-    });
-
-    card.appendChild(image);
-    card.appendChild(favBtn);
-    gallery.appendChild(card);
-  });
-
-  // Lazy load (IntersectionObserver)
-  lazyLoadImages();
+    renderGallery(filteredData);
 }
 
-function toggleFavorite(img, btnEl) {
-  const exists = favorites.find(f => f.id === img.id);
-  if (exists) {
-    favorites = favorites.filter(f => f.id !== img.id);
-    btnEl.textContent = '♡';
-  } else {
-    favorites.push(img);
-    btnEl.textContent = '♥';
-  }
-  localStorage.setItem('favorites', JSON.stringify(favorites));
-  displayFavorites();
-}
+// Événement de recherche
+searchInput.addEventListener('keyup', handleSearch);
 
-function displayFavorites() {
-  favoritesGallery.innerHTML = '';
-  if (favorites.length === 0) {
-    favoritesGallery.innerHTML = '<p>Aucun favori pour l’instant.</p>';
-    return;
-  }
-  favorites.forEach(img => {
-    const imgEl = document.createElement('img');
-    imgEl.src = img.urls.thumb || img.urls.small;
-    imgEl.alt = img.alt_description || '';
-    imgEl.addEventListener('click', () => window.open(img.links.html, '_blank'));
-    favoritesGallery.appendChild(imgEl);
-  });
-}
-
-function lazyLoadImages() {
-  const imgs = document.querySelectorAll('img[data-src]');
-  const observer = new IntersectionObserver((entries, obs) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const el = entry.target;
-        el.src = el.dataset.src;
-        el.removeAttribute('data-src');
-        obs.unobserve(el);
-      }
-    });
-  }, { rootMargin: '200px' });
-
-  imgs.forEach(img => observer.observe(img));
-}
-
-// Infinite scroll (charger la page suivante)
-window.addEventListener('scroll', () => {
-  if (loadingMore) return;
-  const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 800;
-  if (nearBottom && currentQuery) {
-    currentPage += 1;
-    searchImages(currentQuery, currentPage);
-  }
+// Chargement initial de la galerie au démarrage
+document.addEventListener('DOMContentLoaded', () => {
+    // Mélanger les données pour simuler un flux dynamique (comme Instagram/Pinterest)
+    const shuffledData = inspirationData.sort(() => 0.5 - Math.random());
+    renderGallery(shuffledData);
 });
