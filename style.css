@@ -1,9 +1,14 @@
-/* --- Styles de Base & Reset --- */
+/* ======================================================================
+   THEME SOMBRE & VERT/BLEU - Inspiré des couleurs numériques
+   ====================================================================== */
 :root {
-    --primary-color: #e60023; /* Rouge Pinterest */
-    --text-color: #111;
-    --bg-color: #f7f7f7;
-    --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.05);
+    /* NOUVELLE PALETTE */
+    --primary-color: #38b2ac; /* Vert Teal (Accent Principal) */
+    --secondary-color: #5bc0de; /* Bleu Clair Vif (Accent Secondaire) */
+    --bg-main: #12121e; /* Bleu Nuit / Fond Principal Sombre */
+    --bg-secondary: #1e2a38; /* Bleu Foncé Subtil (Header/Footer) */
+    --text-color: #e0e0e0; /* Blanc Cassé pour le texte */
+    --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.3); /* Ombre plus foncée */
 }
 
 * {
@@ -14,7 +19,7 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    background-color: var(--bg-color);
+    background-color: var(--bg-main);
     color: var(--text-color);
 }
 
@@ -24,7 +29,7 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 15px 30px;
-    background-color: white;
+    background-color: var(--bg-secondary);
     box-shadow: var(--shadow-light);
     position: sticky; 
     top: 0;
@@ -36,7 +41,7 @@ header {
     align-items: center;
     font-size: 1.5em;
     font-weight: bold;
-    color: var(--primary-color);
+    color: var(--primary-color); /* Logo en vert */
 }
 .logo i { margin-right: 10px; }
 
@@ -49,14 +54,16 @@ header {
 }
 .search-bar input {
     padding: 10px 15px;
-    border: 1px solid #ddd;
+    background-color: #333d4a; /* Fond du champ de recherche */
+    color: var(--text-color);
+    border: 1px solid #444f60;
     border-radius: 20px 0 0 20px;
     font-size: 1em;
     width: 100%;
     outline: none;
 }
 .search-bar button {
-    background-color: var(--primary-color);
+    background-color: var(--secondary-color); /* Bouton en bleu */
     color: white;
     border: none;
     padding: 10px 15px;
@@ -66,12 +73,16 @@ header {
     transition: background-color 0.2s;
 }
 .search-bar button:hover {
-    background-color: #a80e1e;
+    background-color: #49aed6;
+}
+/* Style pour le placeholder dans le thème sombre */
+.search-bar input::placeholder {
+    color: #a0a8b4; 
 }
 
 nav i {
     font-size: 1.8em;
-    color: #555;
+    color: var(--text-color);
     cursor: pointer;
 }
 
@@ -82,18 +93,17 @@ nav i {
 .section-title {
     text-align: center;
     margin: 30px 0 20px;
-    color: #333;
+    color: var(--primary-color); /* Titres en vert */
+    font-size: 1.6em;
 }
 
 /* --- Mise en Page Maçonnerie (Masonry Layout) --- */
 
 .gallery-container {
-    /* La clé de l'effet maçonnerie purement CSS */
-    column-count: 5; /* 5 colonnes sur grand écran */
+    column-count: 5; 
     column-gap: 15px;
     padding: 0 20px;
 }
-/* Style spécifique pour la section Favoris si vous voulez une grille classique */
 .favorites-grid {
     column-count: 6; 
     max-width: 1200px;
@@ -104,7 +114,7 @@ nav i {
 /* Item de la galerie */
 .gallery-item {
     margin-bottom: 15px;
-    break-inside: avoid; /* Empêche l'image d'être coupée entre les colonnes */
+    break-inside: avoid;
     position: relative;
     overflow: hidden;
     border-radius: 12px;
@@ -114,12 +124,16 @@ nav i {
 
 .gallery-item img {
     width: 100%;
-    height: auto; /* IMPORTANT: Pour la maçonnerie, utilisez 'height: auto' */
+    height: auto;
     display: block;
     transition: opacity 0.3s;
 }
 
-/* --- Overlay et Interactions (Style Instagram/Pinterest) --- */
+/* --- Overlay et Interactions --- */
+
+.gallery-item:hover img {
+    opacity: 0.85; 
+}
 
 .overlay {
     position: absolute;
@@ -127,9 +141,9 @@ nav i {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.4); /* Overlay légèrement plus transparent */
     color: white;
-    opacity: 0; /* Caché par défaut */
+    opacity: 0; 
     transition: opacity 0.3s;
     display: flex;
     flex-direction: column;
@@ -138,7 +152,7 @@ nav i {
 }
 
 .gallery-item:hover .overlay {
-    opacity: 1; /* Apparaît au survol */
+    opacity: 1; 
 }
 
 .overlay-top {
@@ -146,8 +160,8 @@ nav i {
     justify-content: flex-end;
 }
 .overlay-top .save-btn {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: var(--primary-color); /* Bouton en vert */
+    color: var(--bg-main); /* Texte sombre sur bouton clair */
     border: none;
     padding: 8px 15px;
     border-radius: 20px;
@@ -161,7 +175,7 @@ nav i {
     align-items: flex-end;
 }
 .overlay-bottom .author-link {
-    color: white;
+    color: var(--secondary-color); /* Lien en bleu clair */
     font-size: 0.9em;
     text-decoration: underline;
 }
@@ -170,45 +184,56 @@ nav i {
     cursor: pointer;
     margin-left: 10px;
 }
-.action-icon.favorite { color: white; }
-.action-icon.favorite.active { color: #f44336; } /* Coeur rempli rouge */
+.action-icon.favorite { color: var(--text-color); }
+.action-icon.favorite.active { color: #f44336; } /* Coeur rempli reste rouge */
 
 
-/* --- REGLES RESPONSIVES FINALES (Basé sur 2 Colonnes pour Mobile) --- */
-
-/* 1. Écrans larges (standard ordinateur de bureau) */
-.gallery-container {
-    column-count: 5;
-    column-gap: 15px;
-    padding: 0 20px;
-}
-.favorites-grid {
-    column-count: 6; 
+/* --- Messages (Chargement/Erreur) --- */
+.no-results, .error-message {
+    text-align: center;
+    padding: 50px;
+    color: var(--secondary-color);
+    font-size: 1.2em;
+    grid-column: 1 / -1;
 }
 
-/* 2. Grandes tablettes et petits ordinateurs de bureau (Max 1400px) */
+/* --- Pied de Page --- */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: var(--bg-secondary);
+    color: #a0a8b4;
+    margin-top: 30px;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+}
+
+/* ======================================================================
+   RÈGLES RESPONSIVES FINALES (2 COLONNES SUR MOBILE)
+   ====================================================================== */
+
+/* Grandes tablettes et petits ordinateurs de bureau (Max 1400px) */
 @media (max-width: 1400px) {
     .gallery-container { column-count: 4; }
     .favorites-grid { column-count: 5; }
 }
 
-/* 3. Tablettes verticales (Max 1000px) */
+/* Tablettes verticales (Max 1000px) */
 @media (max-width: 1000px) {
     .gallery-container { column-count: 3; }
     .favorites-grid { column-count: 4; }
     .search-bar { max-width: 400px; margin: 0 10px; }
 }
 
-/* 4. Téléphones (jusqu'à 700px de large) - FORÇAGE À DEUX COLONNES */
+/* Téléphones (jusqu'à 700px de large) - FORÇAGE À DEUX COLONNES */
 @media (max-width: 700px) {
     /* La clé de l'affichage sur téléphone et petites tablettes */
     .gallery-container { column-count: 2; }
-    .favorites-grid { column-count: 3; } /* Les favoris peuvent rester sur 3 pour être plus compacts */
+    .favorites-grid { column-count: 3; } 
     
     .logo h1 { display: none; }
     header { padding: 10px 15px; }
     
-    /* Optimisation des overlays pour que le bouton Enregistrer ne soit pas trop gros */
+    /* Optimisation des overlays pour la vue mobile */
     .gallery-item .overlay-top .save-btn {
         padding: 5px 10px;
         font-size: 0.75em;
@@ -219,18 +244,10 @@ nav i {
     }
     .gallery-item .overlay-bottom .author-link {
         font-size: 0.75em;
+        /* Ajout : S'assurer que le lien est lisible sur fond sombre */
+        color: var(--secondary-color); 
     }
     .gallery-item .overlay {
         padding: 8px; 
     }
-}
-
-/* --- Footer --- */
-footer {
-    text-align: center;
-    padding: 20px;
-    background-color: white;
-    color: #888;
-    margin-top: 30px;
-    box-shadow: 0 -2px 5px rgba(0,0,0,0.02);
 }
