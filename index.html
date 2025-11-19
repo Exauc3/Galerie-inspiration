@@ -3,31 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galerie d'Inspiration Créative</title>
+    <title>InspiGram - Galerie Professionnelle</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
 
     <header>
-        <h1>🎨 Galerie d'Inspiration Créative</h1>
-
-        <div class="search-bar">
-            <input type="text" id="search-input" placeholder="Rechercher des images (ex: design, nature, UI)...">
-            <button id="search-button">Rechercher</button>
+        <div class="logo">
+            <i class="fas fa-camera-retro"></i>
+            <h1>InspiGram</h1>
         </div>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Rechercher des inspirations, tags...">
+            <button><i class="fas fa-search"></i></button>
+        </div>
+        <nav>
+            <i class="fas fa-user-circle"></i>
+        </nav>
     </header>
 
-    <main>
-        <h2 class="section-title">Résultats</h2>
-        <div id="gallery" class="grid"></div>
-    </main>
+    <main class="gallery-container" id="galleryContainer">
+        </main>
 
-    <section class="favorites-section">
-        <h2 class="section-title">❤️ Mes Favoris</h2>
-        <div id="favorites-gallery" class="grid"></div>
-    </section>
+    <footer>
+        <p>&copy; 2024 InspiGram. Tous droits réservés.</p>
+    </footer>
 
-    <script src="config.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
