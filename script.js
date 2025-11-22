@@ -68,10 +68,12 @@ function openLightbox(img) {
 }
 
 
-// --- MODIFICATION DANS createGalleryItem pour le clic mobile ---
+// Création de l'élément de la galerie avec overlay (PROFESSIONNEL)
 function createGalleryItem(img, allowFavoriteToggle) {
     const isFavorite = favorites.some(f => f.id === img.id);
-    // ...
+    
+    const itemDiv = document.createElement("div");
+    itemDiv.className = "gallery-item";
     
     // 1. Image
     const imgElement = document.createElement("img");
@@ -79,27 +81,77 @@ function createGalleryItem(img, allowFavoriteToggle) {
     imgElement.alt = img.alt_description || img.user.username;
     imgElement.loading = "lazy";
     
-    // AJOUT D'UN ÉVÉNEMENT TOUCHSTART (pour les mobiles)
-    imgElement.addEventListener("touchstart", (e) => {
-        // Empêche la propagation du touch event si un overlay était activé
-        e.stopPropagation(); 
-        openLightbox(img); 
+    
+    // GESTIONNAIRE DE CLIC UNIQUE SUR L'ÉLÉMENT PARENT (itemDiv)
+    // Nous ajoutons l'écouteur ici pour une meilleure fiabilité sur mobile.
+    itemDiv.addEventListener("click", (e) => {
+        // CRITIQUE : Vérifier que le clic/touch n'est PAS sur un bouton d'action (.save-btn ou .action-icon)
+        const isActionButton = e.target.closest('.save-btn') || e.target.closest('.action-icon');
+
+        if (!isActionButton) {
+            // Si l'utilisateur clique sur l'image ou l'overlay, mais pas sur les boutons, on ouvre la Lightbox
+            openLightbox(img); 
+        }
+        // Sinon, si c'est un bouton d'action, le code du bouton est exécuté et on ne fait rien de plus.
     });
-    
-    // AJOUT DE L'ÉVÉNEMENT CLICK (pour les ordinateurs de bureau et comme fallback)
-    imgElement.addEventListener("click", () => {
-         openLightbox(img); 
-    });
-    
-    // ... (Le reste du code de createGalleryItem est inchangé)
-    
-    // Si vous voulez aussi que le clic sur l'overlay ferme la modale sans la rouvrir:
+
+
+    // 2. Overlay (Contenu au survol)
     const overlayDiv = document.createElement("div");
     overlayDiv.className = "overlay";
-    // ...
+    // ... (Le reste du code pour créer l'overlay reste inchangé)
     
-    // Assurez-vous d'ajouter l'image à l'itemDiv AVANT l'overlay
-    itemDiv.appendChild(imgElement); 
+    // Overlay Top: Bouton Enregistrer/Partager
+    const overlayTop = document.createElement("div");
+    overlayTop.className = "overlay-top";
+    
+    // Bouton de Sauvegarde (simulé par le tag)
+    const saveButton = document.createElement("button");
+    saveButton.textContent = 'Enregistrer';
+    saveButton.className = 'save-btn';
+    saveButton.onclick = (e) => {
+        e.stopPropagation(); // Optionnel mais bonne pratique pour les boutons
+        alert('Enregistré dans votre collection !');
+    }
+    overlayTop.appendChild(saveButton);
+
+    // Overlay Bottom: Auteur et Icônes d'action
+    const overlayBottom = document.createElement("div");
+    overlayBottom.className = "overlay-bottom";
+    
+    // Lien Auteur
+    const authorLink = document.createElement("a");
+    authorLink.className = 'author-link';
+    authorLink.textContent = `@${img.user.username}`;
+    authorLink.href = img.user.links.html;
+    authorLink.target = '_blank';
+    overlayBottom.appendChild(authorLink);
+
+    // Icône Favori 
+    if (allowFavoriteToggle) {
+        const favoriteIcon = document.createElement("i");
+        favoriteIcon.className = `fas fa-heart action-icon favorite ${isFavorite ? 'active' : ''}`;
+        favoriteIcon.onclick = (e) => {
+            e.stopPropagation(); // Bonne pratique : ne pas déclencher le clic parent
+            toggleFavorite(img);
+            favoriteIcon.classList.toggle('active');
+        };
+        overlayBottom.appendChild(favoriteIcon);
+    } 
+    
+    // Icône Partager
+    const shareIcon = document.createElement("i");
+    shareIcon.className = 'fas fa-share-alt action-icon';
+    shareIcon.onclick = (e) => {
+        e.stopPropagation(); // Bonne pratique : ne pas déclencher le clic parent
+        window.open(img.links.html, '_blank')
+    };
+    overlayBottom.appendChild(shareIcon);
+
+    // Assemblage final
+    overlayDiv.appendChild(overlayTop);
+    overlayDiv.appendChild(overlayBottom);
+    itemDiv.appendChild(imgElement);
     itemDiv.appendChild(overlayDiv);
 
     return itemDiv;
