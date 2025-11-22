@@ -146,6 +146,45 @@ function createGalleryItem(img, allowFavoriteToggle) {
     authorLink.target = '_blank';
     overlayBottom.appendChild(authorLink);
 
+// --- FONCTION MODALE (LIGHTBOX) ---
+function openLightbox(img) {
+    // Crée le conteneur de la modale
+    const modal = document.createElement('div');
+    modal.id = 'lightbox-modal';
+    modal.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, 0.9); z-index: 1000;
+        display: flex; justify-content: center; align-items: center;
+        cursor: zoom-out;
+    `;
+
+    // Crée l'image agrandie
+    const enlargedImg = document.createElement('img');
+    // Utiliser la 'regular' ou 'full' url pour une meilleure qualité
+    enlargedImg.src = img.urls.regular; 
+    enlargedImg.alt = img.alt_description || img.user.username;
+    enlargedImg.style.cssText = `
+        max-width: 90%; max-height: 90%;
+        display: block; border-radius: 8px;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
+    `;
+
+    modal.appendChild(enlargedImg);
+    document.body.appendChild(modal);
+
+    // Fermer la modale au clic ou à la touche ESC
+    modal.addEventListener('click', () => {
+        document.body.removeChild(modal);
+    });
+    document.addEventListener('keydown', function closeOnEsc(e) {
+        if (e.key === 'Escape') {
+            document.body.removeChild(modal);
+            document.removeEventListener('keydown', closeOnEsc);
+        }
+    });
+}
+
+
     // Icône Favori (visible si l'item est dans la galerie principale)
     if (allowFavoriteToggle) {
         const favoriteIcon = document.createElement("i");
