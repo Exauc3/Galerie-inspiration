@@ -1,5 +1,5 @@
 // ======================================================================
-// Fichier : script.js
+// Fichier : script.js 
 // ======================================================================
 
 // IMPORTANT : VÉRIFICATION DE LA CLÉ API
@@ -27,7 +27,7 @@ function openLightbox(img) {
     modal.id = 'lightbox-modal';
     modal.style.cssText = `
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background-color: rgba(0, 0, 0, 0.95);
+        background-color: rgba(0, 0, 0, 0.7); /* 🔑 MODIFICATION : Rendu transparent (70% opaque) */
         z-index: 9999;
         display: flex; justify-content: center; align-items: center;
     `;
