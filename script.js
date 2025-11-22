@@ -1,6 +1,5 @@
 // ======================================================================
-// Fichier : script.js (Version Professionnelle Unsplash V3)
-// Inclus: Recherche API, LocalStorage, Mise en page dynamique, Lightbox/Modale
+// Fichier : script.js
 // ======================================================================
 
 // IMPORTANT : VÉRIFICATION DE LA CLÉ API
@@ -21,39 +20,139 @@ let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
 displayFavorites();
 
 
-// --- FONCTION MODALE (LIGHTBOX) : Corrigée pour Mobile ---
+// --- FONCTION MODALE (LIGHTBOX) : Avec Bouton Fermeture et Contrôles ---
 function openLightbox(img) {
-    // Crée le conteneur de la modale
+    // Crée le conteneur de la modale (arrière-plan sombre)
     const modal = document.createElement('div');
     modal.id = 'lightbox-modal';
-    
-    // Augmenter le z-index à une valeur très élevée (ex: 9999) pour assurer la superposition
     modal.style.cssText = `
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background-color: rgba(0, 0, 0, 0.95); /* Rendre l'arrière-plan plus opaque */
-        z-index: 9999; /* ASSURER LA SUPERPOSITION MAXIMALE */
+        background-color: rgba(0, 0, 0, 0.95);
+        z-index: 9999;
         display: flex; justify-content: center; align-items: center;
-        cursor: zoom-out;
     `;
 
-    // Crée l'image agrandie (utilise l'URL 'regular' pour la qualité)
+    // 🔑 Bouton de Fermeture (X)
+    const closeButton = document.createElement('i');
+    closeButton.className = 'fas fa-times'; // Icône "X"
+    closeButton.style.cssText = `
+        position: absolute;
+        top: 25px;
+        right: 25px;
+        color: white;
+        font-size: 2em;
+        cursor: pointer;
+        z-index: 10000; 
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 50%;
+        padding: 5px 10px;
+    `;
+
+    closeButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.body.removeChild(modal);
+    });
+    modal.appendChild(closeButton);
+
+    // Conteneur pour l'image et les contrôles internes de la Lightbox
+    const lightboxContent = document.createElement('div');
+    lightboxContent.style.cssText = `
+        position: relative;
+        max-width: 90%;
+        max-height: 90%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border-radius: 8px;
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+        background-color: #1a1a1a;
+        padding: 15px;
+    `;
+
+    // Crée l'image agrandie
     const enlargedImg = document.createElement('img');
     enlargedImg.src = img.urls.regular; 
     enlargedImg.alt = img.alt_description || img.user.username;
     enlargedImg.style.cssText = `
-        max-width: 95%; /* Légère augmentation de la taille sur mobile */
-        max-height: 95%;
-        display: block; border-radius: 8px;
-        box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+        max-width: 100%; 
+        max-height: 80vh;
+        display: block; 
+        border-radius: 4px;
+        margin-bottom: 15px;
     `;
 
-    modal.appendChild(enlargedImg);
+    // Conteneur pour les boutons (utilise la classe CSS .lightbox-controls)
+    const controlsContainer = document.createElement('div');
+    controlsContainer.className = 'lightbox-controls';
+    controlsContainer.style.cssText = `
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 0 10px;
+    `;
+
+    // --- Contrôles : Auteur, Enregistrer, Favori, Partager ---
+
+    // Lien Auteur
+    const authorLink = document.createElement("a");
+    authorLink.className = 'author-link';
+    authorLink.textContent = `@${img.user.username}`;
+    authorLink.href = img.user.links.html;
+    authorLink.target = '_blank';
+    controlsContainer.appendChild(authorLink);
+
+    // Groupe d'icônes à droite
+    const iconGroup = document.createElement('div');
+    iconGroup.style.cssText = `display: flex; align-items: center;`;
+
+    // Bouton de Sauvegarde
+    const saveButton = document.createElement("button");
+    saveButton.textContent = 'Enregistrer';
+    saveButton.className = 'save-btn';
+    saveButton.style.marginRight = '10px';
+    saveButton.onclick = (e) => {
+        e.stopPropagation(); 
+        alert('Enregistré dans votre collection !');
+    };
+    iconGroup.appendChild(saveButton);
+
+    // Icône Favori
+    const isFavorite = favorites.some(f => f.id === img.id); 
+    const favoriteIcon = document.createElement("i");
+    favoriteIcon.className = `fas fa-heart action-icon favorite ${isFavorite ? 'active' : ''}`;
+    favoriteIcon.style.fontSize = '1.8em'; 
+    favoriteIcon.style.marginLeft = '10px';
+    favoriteIcon.onclick = (e) => {
+        e.stopPropagation(); 
+        toggleFavorite(img);
+        favoriteIcon.classList.toggle('active');
+    };
+    iconGroup.appendChild(favoriteIcon);
+    
+    // Icône Partager
+    const shareIcon = document.createElement("i");
+    shareIcon.className = 'fas fa-share-alt action-icon';
+    shareIcon.style.fontSize = '1.8em'; 
+    shareIcon.style.marginLeft = '10px';
+    shareIcon.onclick = (e) => {
+        e.stopPropagation(); 
+        window.open(img.links.html, '_blank');
+    };
+    iconGroup.appendChild(shareIcon);
+
+    controlsContainer.appendChild(iconGroup); 
+
+    // Assemblage final de la lightbox
+    lightboxContent.appendChild(enlargedImg);
+    lightboxContent.appendChild(controlsContainer);
+    modal.appendChild(lightboxContent);
     document.body.appendChild(modal);
 
-    // Fermer la modale au clic n'importe où sur l'écran
+    // Fermer la modale au clic sur le fond
     modal.addEventListener('click', (e) => {
-        // La modale se ferme si l'élément cliqué est le conteneur de la modale lui-même ou l'image
-        if (e.target.id === 'lightbox-modal' || e.target === enlargedImg) {
+        if (e.target.id === 'lightbox-modal') {
              document.body.removeChild(modal);
         }
     });
@@ -69,8 +168,6 @@ function openLightbox(img) {
 
 
 // Création de l'élément de la galerie avec overlay (PROFESSIONNEL)
-// ATTENTION : Cette fonction est la SEULE version de createGalleryItem. 
-// La version dupliquée plus bas a été supprimée.
 function createGalleryItem(img, allowFavoriteToggle) {
     const isFavorite = favorites.some(f => f.id === img.id);
     
@@ -84,17 +181,16 @@ function createGalleryItem(img, allowFavoriteToggle) {
     imgElement.loading = "lazy";
     
     
-    // 🔑 GESTIONNAIRE DE CLIC SUR L'ÉLÉMENT PARENT (itemDiv)
-    // C'est la version qui doit être conservée pour gérer les clics/touches sur mobile.
+    // 🔑 GESTIONNAIRE DE CLIC/TOUCHER SUR L'ÉLÉMENT PARENT (itemDiv)
     itemDiv.addEventListener("click", (e) => {
-        // CRITIQUE : Vérifier que le clic/touch n'est PAS sur un bouton d'action (.save-btn ou .action-icon)
+        // CRITIQUE : Vérifier que le clic/touch n'est PAS sur un bouton d'action
         const isActionButton = e.target.closest('.save-btn') || e.target.closest('.action-icon');
 
         if (!isActionButton) {
-            // Si l'utilisateur clique sur l'image ou l'overlay, mais pas sur les boutons, on ouvre la Lightbox
+            // Si l'utilisateur clique sur l'image ou l'overlay, on ouvre la Lightbox
             openLightbox(img); 
         }
-        // Sinon, si c'est un bouton d'action, le code du bouton est exécuté et on ne fait rien de plus.
+        // Sinon, l'action du bouton est exécutée (grâce au e.stopPropagation dans les boutons)
     });
 
 
@@ -106,12 +202,12 @@ function createGalleryItem(img, allowFavoriteToggle) {
     const overlayTop = document.createElement("div");
     overlayTop.className = "overlay-top";
     
-    // Bouton de Sauvegarde (simulé par le tag)
+    // Bouton de Sauvegarde 
     const saveButton = document.createElement("button");
     saveButton.textContent = 'Enregistrer';
     saveButton.className = 'save-btn';
     saveButton.onclick = (e) => {
-        e.stopPropagation(); // Bonne pratique : empêche le clic parent (Lightbox)
+        e.stopPropagation(); 
         alert('Enregistré dans votre collection !');
     }
     overlayTop.appendChild(saveButton);
@@ -133,7 +229,7 @@ function createGalleryItem(img, allowFavoriteToggle) {
         const favoriteIcon = document.createElement("i");
         favoriteIcon.className = `fas fa-heart action-icon favorite ${isFavorite ? 'active' : ''}`;
         favoriteIcon.onclick = (e) => {
-            e.stopPropagation(); // Bonne pratique : empêche le clic parent (Lightbox)
+            e.stopPropagation(); 
             toggleFavorite(img);
             favoriteIcon.classList.toggle('active');
         };
@@ -144,7 +240,7 @@ function createGalleryItem(img, allowFavoriteToggle) {
     const shareIcon = document.createElement("i");
     shareIcon.className = 'fas fa-share-alt action-icon';
     shareIcon.onclick = (e) => {
-        e.stopPropagation(); // Bonne pratique : empêche le clic parent (Lightbox)
+        e.stopPropagation(); 
         window.open(img.links.html, '_blank')
     };
     overlayBottom.appendChild(shareIcon);
