@@ -1,11 +1,9 @@
 // ======================================================================
-// Fichier : script.js (Version Professionnelle Unsplash)
+// Fichier : script.js (Version Professionnelle Unsplash V3)
+// Inclus: Recherche API, LocalStorage, Mise en page dynamique, Lightbox/Modale
 // ======================================================================
 
-// IMPORTANT : UNSPLASH_ACCESS_KEY est désormais lue directement depuis config.js
-// La clé n'a pas été trouvée précédemment car j'utilisais l'objet API_KEYS
-// Laisser la variable seule comme je l'avais fait est la bonne approche ici.
-// Si la variable n'existe pas, le script s'arrête.
+// IMPORTANT : VÉRIFICATION DE LA CLÉ API
 if (typeof UNSPLASH_ACCESS_KEY === 'undefined') {
     console.error("ERREUR CRITIQUE: UNSPLASH_ACCESS_KEY est introuvable. Assurez-vous que config.js est chargé et définit cette variable.");
     document.getElementById('gallery').innerHTML = 
@@ -23,7 +21,51 @@ let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
 displayFavorites();
 
 
-// --- FONCTIONS DE BASE ---
+// --- FONCTION MODALE (LIGHTBOX) : Définie UNE SEULE fois ---
+function openLightbox(img) {
+    // Crée le conteneur de la modale
+    const modal = document.createElement('div');
+    modal.id = 'lightbox-modal';
+    modal.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, 0.9); z-index: 1000;
+        display: flex; justify-content: center; align-items: center;
+        cursor: zoom-out;
+    `;
+
+    // Crée l'image agrandie (utilise l'URL 'regular' pour la qualité)
+    const enlargedImg = document.createElement('img');
+    enlargedImg.src = img.urls.regular; 
+    enlargedImg.alt = img.alt_description || img.user.username;
+    enlargedImg.style.cssText = `
+        max-width: 90%; max-height: 90%;
+        display: block; border-radius: 8px;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
+    `;
+
+    modal.appendChild(enlargedImg);
+    document.body.appendChild(modal);
+
+    // Fermer la modale au clic n'importe où sur l'écran
+    modal.addEventListener('click', (e) => {
+        // S'assurer que le clic n'est pas sur l'image elle-même (si on veut permettre le clic droit par ex)
+        if (e.target.id === 'lightbox-modal') {
+             document.body.removeChild(modal);
+        }
+    });
+    
+    // Fermer la modale à la touche ESC
+    document.addEventListener('keydown', function closeOnEsc(e) {
+        if (e.key === 'Escape' && document.body.contains(modal)) {
+            document.body.removeChild(modal);
+            // Retire l'écouteur après utilisation
+            document.removeEventListener('keydown', closeOnEsc); 
+        }
+    });
+}
+
+
+// --- FONCTIONS DE BASE (Recherche API) ---
 
 // Recherche d'images
 searchButton.addEventListener("click", () => {
@@ -44,7 +86,6 @@ searchInput.addEventListener("keyup", (event) => {
 async function searchImages(query) {
     gallery.innerHTML = '<p class="loading-message" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Chargement...</p>';
     
-    // Utilisation de la variable UNSPLASH_ACCESS_KEY qui doit être définie dans config.js
     const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&client_id=${UNSPLASH_ACCESS_KEY}&per_page=30`;
     
     try {
@@ -73,7 +114,7 @@ function displayImages(images) {
     }
 
     images.forEach(img => {
-        gallery.appendChild(createGalleryItem(img, true)); // true pour galerie de résultats
+        gallery.appendChild(createGalleryItem(img, true)); 
     });
 }
 
@@ -87,7 +128,7 @@ function displayFavorites() {
     }
     
     favorites.forEach(img => {
-        favoritesGallery.appendChild(createGalleryItem(img, false)); // false pour galerie de favoris
+        favoritesGallery.appendChild(createGalleryItem(img, false)); 
     });
 }
 
@@ -95,10 +136,8 @@ function displayFavorites() {
 function toggleFavorite(img) {
     const index = favorites.findIndex(f => f.id === img.id);
     if (index === -1) {
-        // Ajouter
         favorites.push(img);
     } else {
-        // Retirer
         favorites.splice(index, 1);
     }
     localStorage.setItem("favorites", JSON.stringify(favorites));
@@ -118,23 +157,11 @@ function createGalleryItem(img, allowFavoriteToggle) {
     imgElement.src = img.urls.small;
     imgElement.alt = img.alt_description || img.user.username;
     imgElement.loading = "lazy";
-
-    // 1. Image
-    const imgElement = document.createElement("img");
-    imgElement.src = img.urls.small;
-    imgElement.alt = img.alt_description || img.user.username;
-    imgElement.loading = "lazy";
     
     // Ouvre la modale au clic sur l'image
-    imgElement.addEventListener("click", (e) => {
-        // Optionnel: Empêcher l'ouverture si on clique sur l'overlay
-        if (!e.target.closest('.overlay')) {
-             openLightbox(img); 
-        }
+    imgElement.addEventListener("click", () => {
+         openLightbox(img); 
     });
-
-// ...
-
     
     // 2. Overlay (Contenu au survol)
     const overlayDiv = document.createElement("div");
@@ -162,44 +189,6 @@ function createGalleryItem(img, allowFavoriteToggle) {
     authorLink.href = img.user.links.html;
     authorLink.target = '_blank';
     overlayBottom.appendChild(authorLink);
-
-// --- FONCTION MODALE (LIGHTBOX) ---
-function openLightbox(img) {
-    // Crée le conteneur de la modale
-    const modal = document.createElement('div');
-    modal.id = 'lightbox-modal';
-    modal.style.cssText = `
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background-color: rgba(0, 0, 0, 0.9); z-index: 1000;
-        display: flex; justify-content: center; align-items: center;
-        cursor: zoom-out;
-    `;
-
-    // Crée l'image agrandie
-    const enlargedImg = document.createElement('img');
-    // Utiliser la 'regular' ou 'full' url pour une meilleure qualité
-    enlargedImg.src = img.urls.regular; 
-    enlargedImg.alt = img.alt_description || img.user.username;
-    enlargedImg.style.cssText = `
-        max-width: 90%; max-height: 90%;
-        display: block; border-radius: 8px;
-        box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
-    `;
-
-    modal.appendChild(enlargedImg);
-    document.body.appendChild(modal);
-
-    // Fermer la modale au clic ou à la touche ESC
-    modal.addEventListener('click', () => {
-        document.body.removeChild(modal);
-    });
-    document.addEventListener('keydown', function closeOnEsc(e) {
-        if (e.key === 'Escape') {
-            document.body.removeChild(modal);
-            document.removeEventListener('keydown', closeOnEsc);
-        }
-    });
-}
 
 
     // Icône Favori (visible si l'item est dans la galerie principale)
@@ -231,7 +220,6 @@ function openLightbox(img) {
 
 // Chargement initial d'une recherche par défaut (ex: 'design')
 document.addEventListener('DOMContentLoaded', () => {
-    // Si la galerie de résultats est vide, on lance une recherche par défaut
     if (gallery.children.length === 0) {
         searchImages('design'); 
     }
