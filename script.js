@@ -4,7 +4,7 @@
 
 // IMPORTANT : UNSPLASH_ACCESS_KEY est désormais lue directement depuis config.js
 // La clé n'a pas été trouvée précédemment car j'utilisais l'objet API_KEYS
-// Laisser la variable seule comme vous l'aviez fait est la bonne approche ici.
+// Laisser la variable seule comme je l'avais fait est la bonne approche ici.
 // Si la variable n'existe pas, le script s'arrête.
 if (typeof UNSPLASH_ACCESS_KEY === 'undefined') {
     console.error("ERREUR CRITIQUE: UNSPLASH_ACCESS_KEY est introuvable. Assurez-vous que config.js est chargé et définit cette variable.");
