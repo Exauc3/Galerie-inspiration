@@ -21,14 +21,17 @@ let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
 displayFavorites();
 
 
-// --- FONCTION MODALE (LIGHTBOX) : Définie UNE SEULE fois ---
+// --- FONCTION MODALE (LIGHTBOX) : Corrigée pour Mobile ---
 function openLightbox(img) {
     // Crée le conteneur de la modale
     const modal = document.createElement('div');
     modal.id = 'lightbox-modal';
+    
+    // MODIFICATION CRITIQUE : Augmenter le z-index à une valeur très élevée (ex: 9999)
     modal.style.cssText = `
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background-color: rgba(0, 0, 0, 0.9); z-index: 1000;
+        background-color: rgba(0, 0, 0, 0.95); /* Rendre l'arrière-plan plus opaque */
+        z-index: 9999; /* ASSURER LA SUPERPOSITION MAXIMALE */
         display: flex; justify-content: center; align-items: center;
         cursor: zoom-out;
     `;
@@ -38,9 +41,10 @@ function openLightbox(img) {
     enlargedImg.src = img.urls.regular; 
     enlargedImg.alt = img.alt_description || img.user.username;
     enlargedImg.style.cssText = `
-        max-width: 90%; max-height: 90%;
+        max-width: 95%; /* Légère augmentation de la taille sur mobile */
+        max-height: 95%;
         display: block; border-radius: 8px;
-        box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
     `;
 
     modal.appendChild(enlargedImg);
@@ -48,8 +52,8 @@ function openLightbox(img) {
 
     // Fermer la modale au clic n'importe où sur l'écran
     modal.addEventListener('click', (e) => {
-        // S'assurer que le clic n'est pas sur l'image elle-même (si on veut permettre le clic droit par ex)
-        if (e.target.id === 'lightbox-modal') {
+        // La modale se ferme si l'élément cliqué est le conteneur de la modale lui-même
+        if (e.target.id === 'lightbox-modal' || e.target === enlargedImg) {
              document.body.removeChild(modal);
         }
     });
@@ -58,10 +62,47 @@ function openLightbox(img) {
     document.addEventListener('keydown', function closeOnEsc(e) {
         if (e.key === 'Escape' && document.body.contains(modal)) {
             document.body.removeChild(modal);
-            // Retire l'écouteur après utilisation
             document.removeEventListener('keydown', closeOnEsc); 
         }
     });
+}
+
+
+// --- MODIFICATION DANS createGalleryItem pour le clic mobile ---
+function createGalleryItem(img, allowFavoriteToggle) {
+    const isFavorite = favorites.some(f => f.id === img.id);
+    // ...
+    
+    // 1. Image
+    const imgElement = document.createElement("img");
+    imgElement.src = img.urls.small;
+    imgElement.alt = img.alt_description || img.user.username;
+    imgElement.loading = "lazy";
+    
+    // AJOUT D'UN ÉVÉNEMENT TOUCHSTART (pour les mobiles)
+    imgElement.addEventListener("touchstart", (e) => {
+        // Empêche la propagation du touch event si un overlay était activé
+        e.stopPropagation(); 
+        openLightbox(img); 
+    });
+    
+    // AJOUT DE L'ÉVÉNEMENT CLICK (pour les ordinateurs de bureau et comme fallback)
+    imgElement.addEventListener("click", () => {
+         openLightbox(img); 
+    });
+    
+    // ... (Le reste du code de createGalleryItem est inchangé)
+    
+    // Si vous voulez aussi que le clic sur l'overlay ferme la modale sans la rouvrir:
+    const overlayDiv = document.createElement("div");
+    overlayDiv.className = "overlay";
+    // ...
+    
+    // Assurez-vous d'ajouter l'image à l'itemDiv AVANT l'overlay
+    itemDiv.appendChild(imgElement); 
+    itemDiv.appendChild(overlayDiv);
+
+    return itemDiv;
 }
 
 
