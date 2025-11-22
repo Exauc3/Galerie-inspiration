@@ -27,7 +27,7 @@ function openLightbox(img) {
     const modal = document.createElement('div');
     modal.id = 'lightbox-modal';
     
-    // MODIFICATION CRITIQUE : Augmenter le z-index à une valeur très élevée (ex: 9999)
+    // Augmenter le z-index à une valeur très élevée (ex: 9999) pour assurer la superposition
     modal.style.cssText = `
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background-color: rgba(0, 0, 0, 0.95); /* Rendre l'arrière-plan plus opaque */
@@ -52,7 +52,7 @@ function openLightbox(img) {
 
     // Fermer la modale au clic n'importe où sur l'écran
     modal.addEventListener('click', (e) => {
-        // La modale se ferme si l'élément cliqué est le conteneur de la modale lui-même
+        // La modale se ferme si l'élément cliqué est le conteneur de la modale lui-même ou l'image
         if (e.target.id === 'lightbox-modal' || e.target === enlargedImg) {
              document.body.removeChild(modal);
         }
@@ -69,6 +69,8 @@ function openLightbox(img) {
 
 
 // Création de l'élément de la galerie avec overlay (PROFESSIONNEL)
+// ATTENTION : Cette fonction est la SEULE version de createGalleryItem. 
+// La version dupliquée plus bas a été supprimée.
 function createGalleryItem(img, allowFavoriteToggle) {
     const isFavorite = favorites.some(f => f.id === img.id);
     
@@ -82,8 +84,8 @@ function createGalleryItem(img, allowFavoriteToggle) {
     imgElement.loading = "lazy";
     
     
-    // GESTIONNAIRE DE CLIC UNIQUE SUR L'ÉLÉMENT PARENT (itemDiv)
-    // Nous ajoutons l'écouteur ici pour une meilleure fiabilité sur mobile.
+    // 🔑 GESTIONNAIRE DE CLIC SUR L'ÉLÉMENT PARENT (itemDiv)
+    // C'est la version qui doit être conservée pour gérer les clics/touches sur mobile.
     itemDiv.addEventListener("click", (e) => {
         // CRITIQUE : Vérifier que le clic/touch n'est PAS sur un bouton d'action (.save-btn ou .action-icon)
         const isActionButton = e.target.closest('.save-btn') || e.target.closest('.action-icon');
@@ -99,7 +101,6 @@ function createGalleryItem(img, allowFavoriteToggle) {
     // 2. Overlay (Contenu au survol)
     const overlayDiv = document.createElement("div");
     overlayDiv.className = "overlay";
-    // ... (Le reste du code pour créer l'overlay reste inchangé)
     
     // Overlay Top: Bouton Enregistrer/Partager
     const overlayTop = document.createElement("div");
@@ -110,7 +111,7 @@ function createGalleryItem(img, allowFavoriteToggle) {
     saveButton.textContent = 'Enregistrer';
     saveButton.className = 'save-btn';
     saveButton.onclick = (e) => {
-        e.stopPropagation(); // Optionnel mais bonne pratique pour les boutons
+        e.stopPropagation(); // Bonne pratique : empêche le clic parent (Lightbox)
         alert('Enregistré dans votre collection !');
     }
     overlayTop.appendChild(saveButton);
@@ -132,7 +133,7 @@ function createGalleryItem(img, allowFavoriteToggle) {
         const favoriteIcon = document.createElement("i");
         favoriteIcon.className = `fas fa-heart action-icon favorite ${isFavorite ? 'active' : ''}`;
         favoriteIcon.onclick = (e) => {
-            e.stopPropagation(); // Bonne pratique : ne pas déclencher le clic parent
+            e.stopPropagation(); // Bonne pratique : empêche le clic parent (Lightbox)
             toggleFavorite(img);
             favoriteIcon.classList.toggle('active');
         };
@@ -143,7 +144,7 @@ function createGalleryItem(img, allowFavoriteToggle) {
     const shareIcon = document.createElement("i");
     shareIcon.className = 'fas fa-share-alt action-icon';
     shareIcon.onclick = (e) => {
-        e.stopPropagation(); // Bonne pratique : ne pas déclencher le clic parent
+        e.stopPropagation(); // Bonne pratique : empêche le clic parent (Lightbox)
         window.open(img.links.html, '_blank')
     };
     overlayBottom.appendChild(shareIcon);
@@ -234,82 +235,10 @@ function toggleFavorite(img) {
         favorites.splice(index, 1);
     }
     localStorage.setItem("favorites", JSON.stringify(favorites));
-    displayFavorites();
+    // Mise à jour de l'affichage des favoris après modification
+    displayFavorites(); 
 }
 
-
-// Création de l'élément de la galerie avec overlay (PROFESSIONNEL)
-function createGalleryItem(img, allowFavoriteToggle) {
-    const isFavorite = favorites.some(f => f.id === img.id);
-    
-    const itemDiv = document.createElement("div");
-    itemDiv.className = "gallery-item";
-    
-    // 1. Image
-    const imgElement = document.createElement("img");
-    imgElement.src = img.urls.small;
-    imgElement.alt = img.alt_description || img.user.username;
-    imgElement.loading = "lazy";
-    
-    // Ouvre la modale au clic sur l'image
-    imgElement.addEventListener("click", () => {
-         openLightbox(img); 
-    });
-    
-    // 2. Overlay (Contenu au survol)
-    const overlayDiv = document.createElement("div");
-    overlayDiv.className = "overlay";
-
-    // Overlay Top: Bouton Enregistrer/Partager
-    const overlayTop = document.createElement("div");
-    overlayTop.className = "overlay-top";
-    
-    // Bouton de Sauvegarde (simulé par le tag)
-    const saveButton = document.createElement("button");
-    saveButton.textContent = 'Enregistrer';
-    saveButton.className = 'save-btn';
-    saveButton.onclick = () => alert('Enregistré dans votre collection !');
-    overlayTop.appendChild(saveButton);
-
-    // Overlay Bottom: Auteur et Icônes d'action
-    const overlayBottom = document.createElement("div");
-    overlayBottom.className = "overlay-bottom";
-    
-    // Lien Auteur
-    const authorLink = document.createElement("a");
-    authorLink.className = 'author-link';
-    authorLink.textContent = `@${img.user.username}`;
-    authorLink.href = img.user.links.html;
-    authorLink.target = '_blank';
-    overlayBottom.appendChild(authorLink);
-
-
-    // Icône Favori (visible si l'item est dans la galerie principale)
-    if (allowFavoriteToggle) {
-        const favoriteIcon = document.createElement("i");
-        favoriteIcon.className = `fas fa-heart action-icon favorite ${isFavorite ? 'active' : ''}`;
-        favoriteIcon.onclick = () => {
-            toggleFavorite(img);
-            // Mettre à jour l'état visuel après le clic
-            favoriteIcon.classList.toggle('active');
-        };
-        overlayBottom.appendChild(favoriteIcon);
-    } 
-    
-    // Icône Partager
-    const shareIcon = document.createElement("i");
-    shareIcon.className = 'fas fa-share-alt action-icon';
-    shareIcon.onclick = () => window.open(img.links.html, '_blank');
-    overlayBottom.appendChild(shareIcon);
-
-    // Assemblage final
-    overlayDiv.appendChild(overlayTop);
-    overlayDiv.appendChild(overlayBottom);
-    itemDiv.appendChild(imgElement);
-    itemDiv.appendChild(overlayDiv);
-
-    return itemDiv;
-}
 
 // Chargement initial d'une recherche par défaut (ex: 'design')
 document.addEventListener('DOMContentLoaded', () => {
