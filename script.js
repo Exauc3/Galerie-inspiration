@@ -118,6 +118,23 @@ function createGalleryItem(img, allowFavoriteToggle) {
     imgElement.src = img.urls.small;
     imgElement.alt = img.alt_description || img.user.username;
     imgElement.loading = "lazy";
+
+    // 1. Image
+    const imgElement = document.createElement("img");
+    imgElement.src = img.urls.small;
+    imgElement.alt = img.alt_description || img.user.username;
+    imgElement.loading = "lazy";
+    
+    // Ouvre la modale au clic sur l'image
+    imgElement.addEventListener("click", (e) => {
+        // Optionnel: Empêcher l'ouverture si on clique sur l'overlay
+        if (!e.target.closest('.overlay')) {
+             openLightbox(img); 
+        }
+    });
+
+// ...
+
     
     // 2. Overlay (Contenu au survol)
     const overlayDiv = document.createElement("div");
