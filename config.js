@@ -1,7 +1,7 @@
 // ======================================================================
 // Fichier : config.js
 // Contient la clé d'accès publique pour l'API Unsplash.
-// ⚠️ IMPORTANT : N'oubliez pas d'ajouter 'config.js' à votre .gitignore.
+// ⚠️ IMPORTANT : Ne pas oublier d'ajouter 'config.js' à .gitignore.
 // ======================================================================
 
 // Définition de la variable globale que script.js va lire.
