@@ -149,10 +149,16 @@ nav i {
     flex-direction: column;
     justify-content: space-between;
     padding: 15px;
+    
+    /* 🔑 MODIFICATION CRITIQUE 1 : Permet aux événements de traverser l'overlay lorsqu'il est invisible */
+    pointer-events: none; 
 }
 
 .gallery-item:hover .overlay {
     opacity: 1; 
+    
+    /* 🔑 MODIFICATION CRITIQUE 2 : Réactive l'overlay (et ses boutons) uniquement quand il est visible */
+    pointer-events: auto;
 }
 
 .overlay-top {
